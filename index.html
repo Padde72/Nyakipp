@@ -12,27 +12,13 @@
     <!-- Firebase SDK för databas och autentisering -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- VIKTIGT: FIREBASE-KONFIGURATION ---
-        // Använder den senast skapade, rena API-nyckeln för allt.
-        const firebaseConfig = {
-          apiKey: "AIzaSyAYk5SuDd2BUNEE8YwvFEiommg2tUPPUf4",
-          authDomain: "kipp-25fef.firebaseapp.com",
-          projectId: "kipp-25fef",
-          storageBucket: "kipp-25fef.firebasestorage.app",
-          messagingSenderId: "953023511563",
-          appId: "1:953023511563:web:60e349599b8759c5b65b0e",
-          measurementId: "G-P2CXWJS7C6"
-        };
-
-        // --- VIKTIGT: API-NYCKEL FÖR BILDANALYS (GEMINI) ---
-        // Använder samma, rena API-nyckel för bildanalys.
-        const geminiApiKey = "AIzaSyAYk5SuDd2BUNEE8YwvFEiommg2tUPPUf4";
-
         // Globala variabler
-        const appId = firebaseConfig.projectId || 'default-app-id';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // Initiera Firebase
         const app = initializeApp(firebaseConfig);
@@ -300,12 +286,8 @@
             }
 
             async function analyzeImageWithAI(base64ImageData) {
-                if (geminiApiKey === "KLISTRA_IN_DIN_GEMINI_API_NYCKEL_HÄR" || geminiApiKey === "") {
-                    showMessage("Bildanalys är inte konfigurerad. API-nyckel saknas.", "error");
-                    return null;
-                }
-                
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${geminiApiKey}`;
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                 
                 const schema = {
                     type: "OBJECT",
@@ -731,7 +713,6 @@ ${currentUserName}
                     isAuthReady = true;
                     addButton.disabled = false;
                     statusMessage.textContent = 'Ansluten.';
-                    statusMessage.classList.remove('text-red-400');
                     if (!unsubscribeFromInventory) {
                         setupInventoryListener();
                     }
@@ -747,14 +728,14 @@ ${currentUserName}
                     filterAndRenderInventory();
                     
                     try {
-                        // Försök alltid logga in anonymt när sidan är publicerad
-                        await signInAnonymously(auth);
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
                     } catch (error) {
                         console.error("Autentiseringsfel: ", error);
                         showMessage('Kunde inte ansluta till databasen.', 'error');
-                        // Lägg till ett tydligare felmeddelande för användaren
-                        statusMessage.innerHTML = 'Fel: Kunde inte ansluta. <br>Har du klistrat in din firebaseConfig?';
-                        statusMessage.classList.add('text-red-400');
                     }
                 }
             });
