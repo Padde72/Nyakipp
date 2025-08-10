@@ -16,17 +16,21 @@
         import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- VIKTIGT: FIREBASE-KONFIGURATION ---
-        // Klistra in din egen Firebase-konfiguration här.
-        // Du hittar den i ditt Firebase-projekts inställningar efter att du skapat en webb-app.
-      const firebaseConfig = {
-  apiKey: "AIzaSyBlXQf5mByIdRNOe0N6Xy0V2V6ZxJh0AEI",
-  authDomain: "kipp-25fef.firebaseapp.com",
-  projectId: "kipp-25fef",
-  storageBucket: "kipp-25fef.firebasestorage.app",
-  messagingSenderId: "953023511563",
-  appId: "1:953023511563:web:60e349599b8759c5b65b0e",
-  measurementId: "G-P2CXWJS7C6"
-};
+        const firebaseConfig = {
+          apiKey: "AIzaSyBlXQf5mByIdRNOe0N6Xy0V2V6ZxJh0AEI",
+          authDomain: "kipp-25fef.firebaseapp.com",
+          projectId: "kipp-25fef",
+          storageBucket: "kipp-25fef.firebasestorage.app",
+          messagingSenderId: "953023511563",
+          appId: "1:953023511563:web:60e349599b8759c5b65b0e",
+          measurementId: "G-P2CXWJS7C6"
+        };
+
+        // --- VIKTIGT: API-NYCKEL FÖR BILDANALYS (GEMINI) ---
+        // För att bildanalysen ska fungera på den publicerade sidan behöver du en API-nyckel.
+        // Skapa en på https://aistudio.google.com/app/apikey och klistra in den här.
+        // OBS: Detta kan kräva att du aktiverar fakturering på ditt Google Cloud-projekt.
+        const geminiApiKey = "AIzaSyCrPj45tNuZlcnKQ_qF-YpOo8veSaFVmek";
 
         // Globala variabler
         const appId = firebaseConfig.projectId || 'default-app-id';
@@ -297,8 +301,12 @@
             }
 
             async function analyzeImageWithAI(base64ImageData) {
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                if (geminiApiKey === "KLISTRA_IN_DIN_GEMINI_API_NYCKEL_HÄR" || geminiApiKey === "") {
+                    showMessage("Bildanalys är inte konfigurerad. API-nyckel saknas.", "error");
+                    return null;
+                }
+                
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${geminiApiKey}`;
                 
                 const schema = {
                     type: "OBJECT",
