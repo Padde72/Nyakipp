@@ -17,15 +17,52 @@
 
         // Globala variabler
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        
+        // Firebase-konfigurationen är nu inklistrad här:
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+          apiKey: "AIzaSyAYK5SuDd2BUNe8YwvFEiommg2tUPPUf4",
+          authDomain: "kipp-25fef.firebaseapp.com",
+          projectId: "kipp-25fef",
+          storageBucket: "kipp-25fef.appspot.com",
+          messagingSenderId: "953023511563",
+          appId: "1:953023511563:web:60e349599b8759c5b65b0e",
+          measurementId: "G-P2CXWJS7C6"
+        };
+        
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Funktion för att visa felmeddelande om konfiguration saknas
+        function checkFirebaseConfig() {
+            const statusMessage = document.getElementById('statusMessage');
+            if (!firebaseConfig || Object.keys(firebaseConfig).length === 0 || !firebaseConfig.apiKey) {
+                if (statusMessage) {
+                    statusMessage.innerHTML = '<span class="text-red-400 font-bold">Fel: Kunde inte ansluta.</span><br><span class="text-yellow-300 text-xs">Har du klistrat in din firebaseConfig?</span>';
+                }
+                return false;
+            }
+            return true;
+        }
 
-        // Initiera Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        // Initiera Firebase endast om konfigurationen finns
+        let app, db, auth;
+        if (checkFirebaseConfig()) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
+             // Kontrollera konfigurationen igen när DOM är laddad
+            if (!checkFirebaseConfig()) {
+                // Dölj inloggning och visa huvudappen med felmeddelande
+                document.getElementById('loginScreen').classList.add('hidden');
+                const mainAppDiv = document.getElementById('mainApp');
+                mainAppDiv.classList.remove('hidden');
+                // Inaktivera alla fält och knappar
+                mainAppDiv.querySelectorAll('input, button, select, textarea').forEach(el => el.disabled = true);
+                return; // Avbryt resten av skriptet
+            }
+
             // Lokalt lösenord
             const LOCAL_PASSWORD = "PostNord123";
 
