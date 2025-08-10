@@ -16,8 +16,9 @@
         import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- VIKTIGT: FIREBASE-KONFIGURATION ---
+        // Använder den senast skapade API-nyckeln för att undvika "expired" fel.
         const firebaseConfig = {
-          apiKey: "AIzaSyBlXQf5mByIdRNOe0N6Xy0V2V6ZxJh0AEI",
+          apiKey: "AIzaSyAYk5SuDd2BUNEE8YwvFEiommg2tUPPUf4",
           authDomain: "kipp-25fef.firebaseapp.com",
           projectId: "kipp-25fef",
           storageBucket: "kipp-25fef.firebasestorage.app",
@@ -27,8 +28,7 @@
         };
 
         // --- VIKTIGT: API-NYCKEL FÖR BILDANALYS (GEMINI) ---
-        // Denna nyckel är "Browser key" som skapades automatiskt av Firebase.
-        const geminiApiKey = "AIzaSyBlXQf5mByIdRNOe0N6Xy0V2V6ZxJh0AEI";
+        const geminiApiKey = "AIzaSyAYk5SuDd2BUNEE8YwvFEiommg2tUPPUf4";
 
         // Globala variabler
         const appId = firebaseConfig.projectId || 'default-app-id';
